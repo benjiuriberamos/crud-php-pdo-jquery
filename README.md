@@ -1,2 +1,3 @@
-# crud-php-pdo-jquery
-Prueba técnica
+# CRUD PHP - PDO JQUERY
+
+If you something about me, write me benjiuriberamos@gmail.com

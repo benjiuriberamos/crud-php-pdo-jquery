@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+        .form-content {
+            width: 30%;
+        }
+        .table-content {
+            width: 70%;
+        }
+        form{
+            display: block;
+        }
+        input {
+            width: 98%;
+            margin: 2px
+        }
+
+        #btnupdate {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-content">
+        <h3>Crear alumno</h3>
+        <form method="POST" id="form" class="form">
+            <input type="hidden" name="id" id="id">
+            <label for="nombres">Nombres</label>
+            <input type="text" name="nombres" id="nombres">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" name="apellidos" id="apellidos">
+            <label for="dni">Dni</label>
+            <input type="text" name="dni" id="dni">
+        </form>
+        <button id="btncreate">Crear</button>
+        <button id="btnupdate">Actualizar</button>
+        <button id="btnclear">Limpiar</button>
+    </div>
+    <div class="table-content">
+        <table>
+            <thead>
+                <th>ID</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>dni</th>
+            </thead>
+            <tbody id="list">
+            </tbody>
+        </table>
+    </div>
+    <script src="jquery-3.7.1.min.js"></script>
+    <script>
+        
+        $("#btnclear").click(function(e) {
+            e.preventDefault();
+            $("input").val('');
+            $("#btncreate").show();
+            $("#btnupdate").hide();
+            console.log('limpia')
+        });
+
+        $("body").on('click', '.toupdate', function(e) {
+            e.preventDefault();
+            $("#id").val($(this).data('id'));
+            $("#nombres").val($(this).data('nombres'));
+            $("#apellidos").val($(this).data('apellidos'));
+            $("#dni").val($(this).data('dni'));
+            $("#btncreate").hide();
+            $("#btnupdate").show();
+            console.log('cargar datos')
+        });
+
+        //CRUD
+
+        //CREATE
+        $("#btncreate").click(function(e) {
+            e.preventDefault();
+            let data = $("#form").serialize();
+            $.ajax({
+                url:'alumnos.php?type=create', 
+                type:'post',
+                dataType: 'json',
+                data: data,
+                success: function(res) {
+                    alert(res.msj);
+                    read();
+                }
+            })
+        })
+
+        //UPDATE
+        $("#btnupdate").click(function(e) {
+            e.preventDefault();
+            let data = $("#form").serialize();
+            $.ajax({
+                url:'alumnos.php?type=update', 
+                type:'POST',
+                dataType: 'json',
+                data: data,
+                success: function(res) {
+                    alert(res.msj);
+                    read();
+                }
+            })
+        })
+
+        //DELETE 
+        $("body").on('click', '.todelete', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url:'alumnos.php?type=delete', 
+                type:'POST',
+                dataType: 'json',
+                data: { id: $(this).data('id')},
+                success: function(res) {
+                    confirm('¿Desea eliminar este elemento?');
+                    read();
+                }
+            })
+        })
+
+        //READ
+        function read() {
+            $.ajax({
+                url:'alumnos.php?type=read', 
+                type:'GET',
+                dataType: 'json',
+                data: { id: $(this).data('id')},
+                success: function(res) {
+                    let html
+                    res.data.forEach(item => {
+                        html += `
+                        <tr>
+                                <td>${item.id}</td>
+                                <td>${item.nombres}</td>
+                                <td>${item.apellidos}</td>
+                                <td>${item.dni}</td>
+                                <td><button 
+                                data-id="${item.id}" 
+                                data-nombres="${item.nombres}"
+                                data-apellidos="${item.apellidos}"
+                                data-dni="${item.dni}"
+                                class="toupdate">Actualizar</button></td>
+                                <td><button data-id="${item.id}" class="todelete">Borrar</button></td>
+                        </tr>`;
+                        
+
+                    });
+
+                    $('#list').html(html);
+                    console.log(res.msj);
+                }
+            })
+        }
+
+        read();
+
+    </script>
+</body>
+</html>
